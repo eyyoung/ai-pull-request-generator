@@ -1,0 +1,69 @@
+{
+	"name": "pr-comment-generator",
+	"displayName": "PR Comment Generator",
+	"description": "Generate PR comments based on git information",
+	"version": "0.0.1",
+	"publisher": "Young",
+	"private": true,
+	"license": "MIT",
+	"repository": "https://github.com/Microsoft/vscode-extension-samples/getting-started-sample",
+	"engines": {
+		"vscode": "^1.73.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onCommand:pr-comment-generator.generatePRComment"
+	],
+	"main": "./out/extension.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "pr-comment-generator.generatePRComment",
+				"title": "Generate PR Comment",
+				"category": "PR Generator"
+			},
+			{
+				"command": "pr-comment-generator.configureTemplate",
+				"title": "Configure PR Template",
+				"category": "PR Generator"
+			}
+		],
+		"configuration": {
+			"title": "PR Comment Generator",
+			"properties": {
+				"prCommentGenerator.apiKey": {
+					"type": "string",
+					"default": "",
+					"description": "Your OpenAI API Key"
+				},
+				"prCommentGenerator.template": {
+					"type": "string",
+					"default": "Please generate a pull request description with the following template, remember only output markdown content so that I can copy and paste it into the description:\n\n```\n## Objective\n\n**What is your objective for this Pull Request?**\n\n## Changes\n\n**Changes that you made in this Pull Request.**\n\n## Jira Link\n\n****If this Pull Request is related to a Jira ticket, no need to add link, ticket number is enough. eg. CMS-###**\n\n## Type of Pull Request\n\n- [ ] Feature\n- [ ] Bug Fix\n- [ ] Enhancement\n- [ ] Refactor\n\n## Checklist\n\n- [ ] If I added new functionality, I added tests covering it.\n- [ ] If I fixed a bug, I added a regression test to prevent the bug from silently reappearing again.\n- [ ] I checked whether I should update the docs and did so if necessary.\n```\n\nUse the following git information to generate the description, the branch info may also include Jira ticket number, so please make sure to include that in the description::\n\nBranch Information:\n- Current Branch: {currentBranch}\n- Target Branch: {targetBranch}\n- Jira Ticket: {jiraTicket}\n\nCommit Messages:\n{commitMessages}\n\nGit Diff:\n{diff}",
+					"description": "Template for generating PR comments. Available placeholders: {currentBranch}, {targetBranch}, {jiraTicket}, {commitMessages}, {diff}"
+				}
+			}
+		}
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"lint": "eslint src --ext ts",
+		"watch": "tsc -watch -p ./",
+		"pretest": "npm run compile && npm run lint",
+		"test": "node ./out/test/runTest.js"
+	},
+	"devDependencies": {
+		"@types/node": "^16.18.34",
+		"@types/vscode": "^1.73.0",
+		"@typescript-eslint/eslint-plugin": "^6.7.0",
+		"@typescript-eslint/parser": "^6.7.0",
+		"eslint": "^8.26.0",
+		"typescript": "^5.2.2"
+	},
+	"dependencies": {
+		"simple-git": "^3.20.0",
+		"axios": "^1.7.7"
+	}
+}
