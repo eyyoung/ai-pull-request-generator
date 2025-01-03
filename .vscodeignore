@@ -1,0 +1,23 @@
+.vscode/**
+.vscode-test/**
+src/**
+.gitignore
+.yarnrc
+vsc-extension-quickstart.md
+**/tsconfig.json
+**/.eslintrc.json
+**/*.map
+**/*.ts
+.github/**
+test/**
+media/**/*.md
+media/sample.png
+media/preview.png
+media/small-image.png
+media/configure-api.png
+media/generate.png
+media/sidebar.png
+media/template.png
+
+# Keep icon files
+!media/icon.png

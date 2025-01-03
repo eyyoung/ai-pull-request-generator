@@ -3,6 +3,7 @@
 import * as vscode from 'vscode';
 import simpleGit, { SimpleGit } from 'simple-git';
 import axios from 'axios';
+import { PRGeneratorSidebarProvider } from './sidebarProvider';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -16,7 +17,7 @@ export function activate(context: vscode.ExtensionContext): void {
 		return match ? match[1] : 'No Jira ticket found';
 	};
 
-	const generatePRComment = async () => {
+	const generatePRComment = async (): Promise<string> => {
 		// Create status bar item for loading indicator
 		const loadingStatus = vscode.window.createStatusBarItem(
 			vscode.StatusBarAlignment.Right,
@@ -115,25 +116,15 @@ export function activate(context: vscode.ExtensionContext): void {
 			);
 
 			const prComment = response.data.choices[0].message.content.trim();
-
+			
 			// Hide loading status
 			loadingStatus.hide();
-
-			// Show the generated PR comment in a new editor
-			const document = await vscode.workspace.openTextDocument({
-				content: prComment,
-				language: 'markdown',
-			});
-			await vscode.window.showTextDocument(document);
-
-			// Show success message
-			vscode.window.showInformationMessage(
-				'PR comment generated and displayed in a new editor.'
-			);
+			
+			return prComment;
 		} catch (error) {
 			// Hide loading status in case of error
 			loadingStatus.hide();
-			vscode.window.showErrorMessage(`Error: ${error}`);
+			throw error;
 		} finally {
 			// Dispose of the status bar item
 			loadingStatus.dispose();
@@ -194,6 +185,13 @@ export function activate(context: vscode.ExtensionContext): void {
 		}
 	};
 
+	// Create and register sidebar provider
+	const sidebarProvider = new PRGeneratorSidebarProvider(context.extensionUri, generatePRComment);
+	const sidebarDisposable = vscode.window.registerWebviewViewProvider(
+		PRGeneratorSidebarProvider.viewType,
+		sidebarProvider
+	);
+
 	// Register commands
 	const disposables = [
 		vscode.commands.registerCommand(
@@ -204,6 +202,11 @@ export function activate(context: vscode.ExtensionContext): void {
 			'pr-comment-generator.configureTemplate',
 			configureTemplate
 		),
+		vscode.commands.registerCommand(
+			'pr-comment-generator.refreshSidebar',
+			() => sidebarProvider.refresh()
+		),
+		sidebarDisposable
 	];
 
 	context.subscriptions.push(...disposables);
